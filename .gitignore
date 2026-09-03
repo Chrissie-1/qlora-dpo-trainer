@@ -1,0 +1,18 @@
+# Data and model artifacts are large and reproducible from scripts.
+data/
+adapters/
+results/*.png
+*.parquet
+*.jsonl
+
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+.env
+
+# Run logs
+*.log
