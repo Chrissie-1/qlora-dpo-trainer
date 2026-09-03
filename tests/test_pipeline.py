@@ -166,3 +166,22 @@ def test_judge_results_are_cached_across_instances(tmp_path):
 def test_parse_recovers_json_from_surrounding_prose():
     parsed = Judge._parse('Here is my verdict:\n```json\n{"winner": "B"}\n```')
     assert parsed == {"winner": "B"}
+
+
+def test_dotenv_does_not_override_a_real_environment_variable(tmp_path, monkeypatch):
+    from crucible.config import _load_dotenv
+
+    env = tmp_path / ".env"
+    env.write_text(
+        '# a comment\n\nGROQ_API_KEY="from-file"\nHF_TOKEN=from-file\nmalformed line\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("GROQ_API_KEY", "from-environment")
+    monkeypatch.delenv("HF_TOKEN", raising=False)
+
+    _load_dotenv(env)
+
+    import os
+
+    assert os.environ["GROQ_API_KEY"] == "from-environment"  # export wins
+    assert os.environ["HF_TOKEN"] == "from-file"  # quotes stripped, file fills the gap

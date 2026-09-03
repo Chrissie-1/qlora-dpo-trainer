@@ -10,6 +10,27 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def _load_dotenv(path: Path) -> None:
+    """Read KEY=VALUE lines from .env without adding a dependency.
+
+    Real environment variables win: an exported key is a deliberate override of
+    the file, and silently preferring the file makes that impossible to debug.
+    """
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key, value = key.strip(), value.strip().strip('"').strip("'")
+        if key and value and key not in os.environ:
+            os.environ[key] = value
+
+
+_load_dotenv(ROOT / ".env")
 DATA = ROOT / "data"
 ADAPTERS = ROOT / "adapters"
 RESULTS = ROOT / "results"
