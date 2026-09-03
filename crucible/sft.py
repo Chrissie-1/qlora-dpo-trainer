@@ -10,11 +10,14 @@ not what any later phase asks it for.
 from __future__ import annotations
 
 import argparse
+import math
 import time
 
 import torch
 from transformers import Trainer, TrainingArguments
+from transformers.trainer_pt_utils import LengthGroupedSampler
 
+from crucible.compat import supported
 from crucible.config import ADAPTERS, MAX_SEQ_LEN, SEED
 from crucible.data import load_split
 from crucible.modeling import attach_lora, load_base, load_tokenizer
@@ -65,6 +68,24 @@ def collate(batch: list[dict], pad_id: int) -> dict:
     }
 
 
+class LengthGroupedTrainer(Trainer):
+    """Restores `group_by_length`, which transformers 5 dropped.
+
+    UltraChat responses run from a few dozen tokens to the full window, so a
+    randomly assembled batch pads mostly to waste. Grouping near-equal lengths
+    into the same batch is where nearly all of the speedup from batching comes
+    from here.
+    """
+
+    def _get_train_sampler(self, train_dataset=None):
+        dataset = self.train_dataset if train_dataset is None else train_dataset
+        return LengthGroupedSampler(
+            batch_size=self.args.train_batch_size * self.args.gradient_accumulation_steps,
+            dataset=dataset,
+            lengths=[len(row["input_ids"]) for row in dataset],
+        )
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--split", default="sft")
@@ -74,6 +95,8 @@ def main() -> None:
     ap.add_argument("--lr", type=float, default=2e-4)
     ap.add_argument("--batch-size", type=int, default=1)
     ap.add_argument("--grad-accum", type=int, default=16)
+    ap.add_argument("--save-steps", type=int, default=50, help="checkpoint every N steps")
+    ap.add_argument("--resume", action="store_true", help="continue from the last checkpoint")
     args = ap.parse_args()
 
     tok = load_tokenizer()
@@ -81,27 +104,42 @@ def main() -> None:
 
     model = attach_lora(load_base(for_training=True))
 
+    # transformers 5 dropped warmup_ratio, so the ratio is applied by hand.
+    steps = math.ceil(len(dataset) * args.epochs / (args.batch_size * args.grad_accum))
+    warmup_steps = max(5, round(0.03 * steps))
+    print(f"{steps} optimiser steps, {warmup_steps} of them warmup")
+
     targs = TrainingArguments(
-        output_dir=args.out,
-        num_train_epochs=args.epochs,
-        per_device_train_batch_size=args.batch_size,
-        gradient_accumulation_steps=args.grad_accum,
-        learning_rate=args.lr,
-        lr_scheduler_type="cosine",
-        warmup_ratio=0.03,
-        # Paged optimiser states spill to host memory instead of OOMing on a
-        # long batch, which is the difference between finishing and not on 8 GB.
-        optim="paged_adamw_8bit",
-        bf16=True,
-        gradient_checkpointing=True,
-        gradient_checkpointing_kwargs={"use_reentrant": False},
-        logging_steps=10,
-        save_strategy="no",
-        report_to=[],
-        seed=SEED,
+        **supported(
+            TrainingArguments,
+            {
+                "output_dir": args.out,
+                "num_train_epochs": args.epochs,
+                "per_device_train_batch_size": args.batch_size,
+                "gradient_accumulation_steps": args.grad_accum,
+                "learning_rate": args.lr,
+                "lr_scheduler_type": "cosine",
+                "warmup_steps": warmup_steps,
+                # Paged optimiser states spill to host memory instead of OOMing
+                # on a long batch, which on 8 GB is the difference between
+                # finishing and not.
+                "optim": "paged_adamw_8bit",
+                "bf16": True,
+                "gradient_checkpointing": True,
+                "gradient_checkpointing_kwargs": {"use_reentrant": False},
+                "logging_steps": 10,
+                # A full run is hours long; checkpoints make an interruption
+                # cost minutes instead of the whole run.
+                "save_strategy": "steps",
+                "save_steps": args.save_steps,
+                "save_total_limit": 2,
+                "report_to": [],
+                "seed": SEED,
+            },
+        )
     )
 
-    trainer = Trainer(
+    trainer = LengthGroupedTrainer(
         model=model,
         args=targs,
         train_dataset=dataset,
@@ -109,12 +147,13 @@ def main() -> None:
     )
 
     start = time.time()
-    trainer.train()
+    trainer.train(resume_from_checkpoint=args.resume or None)
     minutes = (time.time() - start) / 60
 
     model.save_pretrained(args.out)
     tok.save_pretrained(args.out)
-    print(f"saved adapter to {args.out} after {minutes:.1f} min")
+    peak = torch.cuda.max_memory_allocated() / 2**30 if torch.cuda.is_available() else 0.0
+    print(f"saved adapter to {args.out} after {minutes:.1f} min, peak GPU {peak:.2f} GiB")
 
 
 if __name__ == "__main__":

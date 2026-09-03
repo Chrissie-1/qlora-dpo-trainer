@@ -14,14 +14,15 @@ against the installed signatures rather than assumed.
 from __future__ import annotations
 
 import argparse
-import inspect
 import json
+import math
 import time
 
 from datasets import Dataset
 from peft import PeftModel
 from trl import DPOConfig, DPOTrainer
 
+from crucible.compat import supported
 from crucible.config import ADAPTERS, DATA, MAX_SEQ_LEN, SEED
 from crucible.modeling import load_base, load_tokenizer
 
@@ -46,15 +47,6 @@ def load_prefs(path: str, limit: int | None = None) -> Dataset:
     return Dataset.from_list(rows)
 
 
-def supported(cls, names: dict) -> dict:
-    """Drop keyword arguments the installed TRL version does not accept."""
-    accepted = set(inspect.signature(cls.__init__).parameters)
-    dropped = [k for k in names if k not in accepted]
-    if dropped:
-        print(f"note: {cls.__name__} does not accept {dropped} in this TRL version; ignoring")
-    return {k: v for k, v in names.items() if k in accepted}
-
-
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--prefs", default=str(DATA / "prefs.jsonl"))
@@ -72,6 +64,11 @@ def main() -> None:
     dataset = load_prefs(args.prefs, args.limit)
     print(f"{len(dataset)} preference pairs")
 
+    # transformers 5 dropped warmup_ratio; DPOConfig inherits that signature.
+    steps = math.ceil(len(dataset) * args.epochs / (args.batch_size * args.grad_accum))
+    warmup_steps = max(5, round(0.03 * steps))
+    print(f"{steps} optimiser steps, {warmup_steps} of them warmup")
+
     base = load_base(for_training=True)
     policy = PeftModel.from_pretrained(base, args.init_adapter, is_trainable=True)
     policy.print_trainable_parameters()
@@ -87,7 +84,7 @@ def main() -> None:
                 "per_device_train_batch_size": args.batch_size,
                 "gradient_accumulation_steps": args.grad_accum,
                 "lr_scheduler_type": "cosine",
-                "warmup_ratio": 0.03,
+                "warmup_steps": warmup_steps,
                 "optim": "paged_adamw_8bit",
                 "bf16": True,
                 "gradient_checkpointing": True,
