@@ -23,9 +23,9 @@
       "split": "eval",
       "examples": 200,
       "response_tokens": 57284,
-      "nll": 1.1522,
-      "perplexity": 3.1652,
-      "seconds": 147.1
+      "nll": 1.1534,
+      "perplexity": 3.1689,
+      "seconds": 280.6
     }
   },
   "latency": {
@@ -52,8 +52,8 @@
       "quantized": true,
       "prompts": 10,
       "max_new_tokens": 128,
-      "tokens_per_second_mean": 5.26,
-      "tokens_per_second_median": 5.04,
+      "tokens_per_second_mean": 2.6,
+      "tokens_per_second_median": 2.62,
       "peak_gpu_gib": 2.07
     }
   }
