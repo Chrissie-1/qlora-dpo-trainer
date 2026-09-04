@@ -7,7 +7,7 @@
       "response_tokens": 57284,
       "nll": 1.2835,
       "perplexity": 3.6092,
-      "seconds": 112.4
+      "seconds": 106.2
     },
     "sft": {
       "adapter": "adapters/sft",
@@ -16,7 +16,16 @@
       "response_tokens": 57284,
       "nll": 1.1522,
       "perplexity": 3.1652,
-      "seconds": 142.6
+      "seconds": 143.0
+    },
+    "dpo": {
+      "adapter": "adapters/dpo",
+      "split": "eval",
+      "examples": 200,
+      "response_tokens": 57284,
+      "nll": 1.1522,
+      "perplexity": 3.1652,
+      "seconds": 147.1
     }
   },
   "latency": {
@@ -25,8 +34,8 @@
       "quantized": true,
       "prompts": 10,
       "max_new_tokens": 128,
-      "tokens_per_second_mean": 8.25,
-      "tokens_per_second_median": 8.31,
+      "tokens_per_second_mean": 6.66,
+      "tokens_per_second_median": 6.67,
       "peak_gpu_gib": 2.04
     },
     "sft": {
@@ -34,8 +43,17 @@
       "quantized": true,
       "prompts": 10,
       "max_new_tokens": 128,
-      "tokens_per_second_mean": 6.45,
-      "tokens_per_second_median": 6.44,
+      "tokens_per_second_mean": 5.1,
+      "tokens_per_second_median": 5.13,
+      "peak_gpu_gib": 2.07
+    },
+    "dpo": {
+      "adapter": "adapters/dpo",
+      "quantized": true,
+      "prompts": 10,
+      "max_new_tokens": 128,
+      "tokens_per_second_mean": 5.26,
+      "tokens_per_second_median": 5.04,
       "peak_gpu_gib": 2.07
     }
   }

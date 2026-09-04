@@ -311,7 +311,7 @@ class Judge:
                 try:
                     results[futures[future]] = future.result()
                 except CancelledError:
-                    # Cancelled by the quota wall below; already accounted for.
+                    failures += 1  # cancelled by the wall, but still unanswered
                     continue
                 except QuotaExhausted as exc:
                     failures += 1
