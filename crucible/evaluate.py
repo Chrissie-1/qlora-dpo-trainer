@@ -223,6 +223,7 @@ def latency_sweep(rounds: int, prompts: int, max_new_tokens: int) -> dict:
 
 
 def chart(scores_csv: str, out: str) -> None:
+    import collections
     import csv
 
     import matplotlib
@@ -236,7 +237,15 @@ def chart(scores_csv: str, out: str) -> None:
         raise SystemExit(f"{scores_csv} is empty")
 
     axes = ["helpfulness", "correctness", "clarity", "overall"]
-    sources = list(dict.fromkeys(r["source"] for r in rows))
+    counts = collections.Counter(r["source"] for r in rows)
+    # A mean over a handful of responses is noise wearing a bar chart's clothes.
+    MIN_SCORED = 10
+    sources = [s for s in dict.fromkeys(r["source"] for r in rows) if counts[s] >= MIN_SCORED]
+    skipped = [s for s in counts if counts[s] < MIN_SCORED]
+    if skipped:
+        print(f"omitting {skipped} from the chart: fewer than {MIN_SCORED} scored responses")
+    if not sources:
+        raise SystemExit("no source has enough scored responses to plot")
     means = {
         s: [statistics.fmean([float(r[a]) for r in rows if r["source"] == s]) for a in axes]
         for s in sources
@@ -258,7 +267,8 @@ def chart(scores_csv: str, out: str) -> None:
     fig, ax = plt.subplots(figsize=(8, 4.5))
     for i, source in enumerate(sources):
         offsets = [p + i * width - 0.4 + width / 2 for p in positions]
-        bars = ax.bar(offsets, means[source], width, yerr=errs[source], capsize=3, label=source)
+        label = f"{source} (n={counts[source]})"
+        bars = ax.bar(offsets, means[source], width, yerr=errs[source], capsize=3, label=label)
         ax.bar_label(bars, fmt="%.2f", fontsize=8, padding=2)
 
     ax.set_xticks(list(positions))

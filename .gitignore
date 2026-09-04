@@ -1,9 +1,14 @@
 # Data and model artifacts are large and reproducible from scripts.
 data/
 adapters/
-results/*.png
 *.parquet
-*.jsonl
+
+# The judge cache is a cache: large, regenerable, and full of raw model output.
+results/judge_cache.jsonl
+data/*.jsonl
+
+# results/*.csv, results/*.json and results/*.png ARE tracked -- they are the
+# deliverable, and the chart has to render in the README on GitHub.
 
 .venv/
 __pycache__/

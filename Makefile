@@ -1,6 +1,6 @@
 PY := .venv/Scripts/python.exe
 
-.PHONY: setup data sft gen-base gen-sft judge prefs dpo gen-dpo judge-all eval chart test lint all
+.PHONY: setup data sft gen-base gen-sft judge prefs dpo gen-dpo judge-all latency-sweep eval chart test lint all
 
 setup:
 	bash scripts/setup_env.sh
@@ -35,12 +35,14 @@ gen-dpo:
 	$(PY) -m crucible.generate --split judge --tag dpo --adapter adapters/dpo
 judge-all:
 	$(PY) -m crucible.score --gen base --gen sft --gen dpo
+latency-sweep:
+	$(PY) -m crucible.evaluate latency-sweep
+
 eval:
 	$(PY) -m crucible.evaluate ppl --tag base
 	$(PY) -m crucible.evaluate ppl --tag sft --adapter adapters/sft
 	$(PY) -m crucible.evaluate ppl --tag dpo --adapter adapters/dpo
-	$(PY) -m crucible.evaluate latency --tag base
-	$(PY) -m crucible.evaluate latency --tag sft --adapter adapters/sft
+	$(PY) -m crucible.evaluate latency-sweep
 chart:
 	$(PY) -m crucible.evaluate chart
 
