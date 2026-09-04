@@ -25,7 +25,7 @@ import re
 import threading
 import time
 from collections import deque
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import CancelledError, ThreadPoolExecutor
 from pathlib import Path
 
 import httpx
@@ -310,6 +310,9 @@ class Judge:
             for future in tqdm(futures, total=len(items), desc=desc):
                 try:
                     results[futures[future]] = future.result()
+                except CancelledError:
+                    # Cancelled by the quota wall below; already accounted for.
+                    continue
                 except QuotaExhausted as exc:
                     failures += 1
                     if failures == 1:

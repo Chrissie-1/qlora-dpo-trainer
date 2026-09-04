@@ -1,0 +1,42 @@
+{
+  "perplexity": {
+    "base": {
+      "adapter": "base",
+      "split": "eval",
+      "examples": 200,
+      "response_tokens": 57284,
+      "nll": 1.2835,
+      "perplexity": 3.6092,
+      "seconds": 112.4
+    },
+    "sft": {
+      "adapter": "adapters/sft",
+      "split": "eval",
+      "examples": 200,
+      "response_tokens": 57284,
+      "nll": 1.1522,
+      "perplexity": 3.1652,
+      "seconds": 142.6
+    }
+  },
+  "latency": {
+    "base": {
+      "adapter": "base",
+      "quantized": true,
+      "prompts": 10,
+      "max_new_tokens": 128,
+      "tokens_per_second_mean": 8.25,
+      "tokens_per_second_median": 8.31,
+      "peak_gpu_gib": 2.04
+    },
+    "sft": {
+      "adapter": "adapters/sft",
+      "quantized": true,
+      "prompts": 10,
+      "max_new_tokens": 128,
+      "tokens_per_second_mean": 6.45,
+      "tokens_per_second_median": 6.44,
+      "peak_gpu_gib": 2.07
+    }
+  }
+}
