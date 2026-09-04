@@ -56,5 +56,31 @@
       "tokens_per_second_median": 4.97,
       "peak_gpu_gib": 2.07
     }
+  },
+  "latency_sweep": {
+    "base": {
+      "tokens_per_second_median": 11.59,
+      "tokens_per_second_min": 7.36,
+      "tokens_per_second_max": 12.36,
+      "rounds": 3,
+      "prompts": 8,
+      "vs_base_pct": 0.0
+    },
+    "sft": {
+      "tokens_per_second_median": 7.9,
+      "tokens_per_second_min": 5.55,
+      "tokens_per_second_max": 8.2,
+      "rounds": 3,
+      "prompts": 8,
+      "vs_base_pct": -31.8
+    },
+    "dpo": {
+      "tokens_per_second_median": 8.11,
+      "tokens_per_second_min": 7.32,
+      "tokens_per_second_max": 8.56,
+      "rounds": 3,
+      "prompts": 8,
+      "vs_base_pct": -30.0
+    }
   }
 }

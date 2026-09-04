@@ -143,6 +143,11 @@ ebe9d02693cfb7982d0ec85e0f12f239c4433dd426a9b06d3bc0380b4ba4f70c,sft,5.0,5.0,6.0
 2bc92d73ac5bb00a3dbcdf5cf82c16ac48f1d6129689663b587499d13b81ccfd,sft,2.0,5.0,4.0,3.667,"The answer is incomplete and lacks detail, providing only a brief outline without the requested comprehensive plan."
 f7850f8da6cd76cddcf77a5b9cd16f2f8a3206eb6a521aa9c097af3ef05fa4b4,sft,5.0,6.0,6.0,5.667,"The response provides a useful checklist but is incomplete and lacks timing details, reducing its overall usefulness."
 a46895655983a2a15c87ec9300dceed141d1ca95db02a981dc78b5c755c0fde4,sft,9.0,9.0,9.0,9.0,"Provides a direct, accurate answer with clear, concise description."
+04ad7c871f796a4f3d7317feb860ac4629c73ac1fcaa22be2475249bfa6b6fc3,sft,8.0,9.0,7.0,8.0,"Provides a correct, relevant summary but is brief and could be better organized"
 906e4b39a22f06b2d4b6c13713820379d97ef2f3b1f51061069813880e23ccac,sft,7.0,9.0,9.0,8.333,"Provides core info but omits some details on current projects, limiting completeness."
+2d0aa72d42a4d2da23cc7675d45b8891af5559112d30eec796b92b821a33bcc8,sft,0.0,0.0,2.0,0.667,The response does not address the question about the Dodgers and Padres head‑to‑head results and is largely unrelated.
 f10b352e528fa309d360f0d9a479c4dd34521f74aaf0a9b509b01d8c447b3a8e,sft,6.0,8.0,7.0,7.0,"Provides a basic summary but omits several specifics from the source, limiting its usefulness"
 5de80eee1c78ac30688d81dbfdd7518c9ca7eff897f28b46468ad31b17d1bab4,sft,5.0,7.0,8.0,6.667,Provides a high-level feature list but lacks concrete design or implementation details requested.
+42a80642400729dfcbd26faab2cc9d3cc96302d2b90e473f67d7e393a82a0d72,sft,8.0,9.0,9.0,8.667,"Provides a suitable, clear dialogue that meets the prompt, though it could be more varied or detailed"
+d37d1aa1ec63d0903173f3e5fd6078a1796d1cf8d4f9063b3d1c0e1033a1fd6e,sft,6.0,5.0,7.0,6.0,Provides some useful tips but includes inaccurate advice and lacks depth.
+4e4bb9f0c55b6af58fa5f0fdd7ddf5b94d817d12bb9a25cfff0bfe80242f9478,sft,5.0,4.0,6.0,5.0,Provides a basic comparison and examples but includes inaccurate or vague campaign details and lacks depth.

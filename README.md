@@ -35,6 +35,19 @@ DPO from the SFT adapter ──▶ adapters/dpo
 DPO training: loss **0.693 → 0.476**, reward margin **1.33**, reward accuracy
 **87.5%** on 78 preference pairs.
 
+Decode throughput, single stream, greedy, 3 interleaved rounds after a
+discarded warmup:
+
+| Stage | Median tok/s | Range | vs base |
+|---|---|---|---|
+| base | **11.59** | 7.36 - 12.36 | — |
+| SFT | 7.90 | 5.55 - 8.20 | **−31.8%** |
+| DPO | 8.11 | 7.32 - 8.56 | **−30.0%** |
+
+An unmerged LoRA adapter costs about 30% of decode throughput, because it runs
+as extra per-layer matmuls at every step. That is the cost `export merge` exists
+to remove.
+
 ![Judge scores by stage](results/judge_scores.png)
 
 Perplexity is measured on 500 held-out UltraChat pairs with prompt tokens
@@ -146,8 +159,9 @@ serves directly — paged KV cache, continuous batching, speculative decoding.
 
 The merge runs on CPU in fp16 deliberately: merging into 4-bit weights means
 dequantise-add-requantise, which is not the model the adapter was trained
-against. It should also recover the throughput an unmerged adapter costs, since
-LoRA otherwise runs as extra per-layer matmuls at every decode step.
+against. It should also recover most of the ~30% decode throughput an unmerged
+adapter costs (measured above), though this repo has not yet benchmarked the
+merged checkpoint to confirm it.
 
 ## Design decisions
 
@@ -202,6 +216,9 @@ So the judge:
   its confidence interval is wide enough to contain zero.
 * **One seed per configuration.** Differences of a few tenths of a judge point
   are not separable from run-to-run variance.
+* **Latency ranges are wide** (base spans 7.36-12.36 tok/s across three rounds).
+  The ~30% adapter cost is far larger than that spread and survives it; smaller
+  differences measured this way would not.
 * **SFT used 3000 of 8000 examples** (2.7 h against 7.2 h) to leave GPU time for
   the rest of the pipeline.
 * The judge is one model family, one language, one rubric. The order swap
