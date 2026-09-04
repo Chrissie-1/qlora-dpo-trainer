@@ -51,10 +51,10 @@ def test_encode_masks_exactly_the_prompt():
         assert labels[i] == example["input_ids"][i]
 
 
-def test_encode_drops_examples_with_no_room_for_a_response(monkeypatch):
-    monkeypatch.setattr(sft, "MAX_SEQ_LEN", 4)
+def test_encode_drops_examples_with_no_room_for_a_response():
     tok = FakeTokenizer()
-    assert sft.encode({"prompt": "a much longer prompt than four", "response": "hi"}, tok) is None
+    pair = {"prompt": "a much longer prompt than four", "response": "hi"}
+    assert sft.encode(pair, tok, max_len=4) is None
 
 
 def test_collate_pads_labels_with_ignore_index():

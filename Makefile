@@ -9,9 +9,10 @@ setup:
 data:
 	$(PY) -m crucible.data all
 
-# Phase 1
+# Phase 1. 3000 of the 8000 examples: measured 155 tok/s on the 4060, so the
+# full split is a 7.2h epoch and this is 2.7h. See README for the tradeoff.
 sft:
-	$(PY) -m crucible.sft
+	$(PY) -m crucible.sft --limit 3000
 
 # Phase 2
 gen-base:

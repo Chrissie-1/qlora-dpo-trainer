@@ -25,7 +25,7 @@ from crucible.modeling import attach_lora, load_base, load_tokenizer
 IGNORE_INDEX = -100
 
 
-def encode(pair: dict, tok) -> dict | None:
+def encode(pair: dict, tok, max_len: int = MAX_SEQ_LEN) -> dict | None:
     """One prompt/response pair -> input_ids plus prompt-masked labels."""
     prefix = tok.apply_chat_template(
         [{"role": "user", "content": pair["prompt"]}],
@@ -35,7 +35,7 @@ def encode(pair: dict, tok) -> dict | None:
     full = prefix + pair["response"] + tok.eos_token
 
     prefix_ids = tok(prefix, add_special_tokens=False)["input_ids"]
-    full_ids = tok(full, add_special_tokens=False)["input_ids"][:MAX_SEQ_LEN]
+    full_ids = tok(full, add_special_tokens=False)["input_ids"][:max_len]
 
     # A prompt that fills the window leaves nothing to supervise.
     if len(prefix_ids) >= len(full_ids):
@@ -46,8 +46,10 @@ def encode(pair: dict, tok) -> dict | None:
     return {"input_ids": full_ids, "labels": labels}
 
 
-def build_dataset(split: str, tok, limit: int | None = None) -> list[dict]:
-    rows = [encode(p, tok) for p in load_split(split, limit)]
+def build_dataset(
+    split: str, tok, limit: int | None = None, max_len: int = MAX_SEQ_LEN
+) -> list[dict]:
+    rows = [encode(p, tok, max_len) for p in load_split(split, limit)]
     kept = [r for r in rows if r is not None]
     print(f"{split}: {len(kept)} examples kept of {len(rows)}")
     return kept
@@ -96,13 +98,20 @@ def main() -> None:
     ap.add_argument("--batch-size", type=int, default=1)
     ap.add_argument("--grad-accum", type=int, default=16)
     ap.add_argument("--save-steps", type=int, default=50, help="checkpoint every N steps")
+    ap.add_argument(
+        "--no-grad-ckpt",
+        action="store_true",
+        help="trade VRAM for speed: skips recomputing the forward pass, which on "
+        "4-bit weights also means dequantising them only once per step",
+    )
+    ap.add_argument("--max-len", type=int, default=MAX_SEQ_LEN)
     ap.add_argument("--resume", action="store_true", help="continue from the last checkpoint")
     args = ap.parse_args()
 
     tok = load_tokenizer()
-    dataset = build_dataset(args.split, tok, args.limit)
+    dataset = build_dataset(args.split, tok, args.limit, args.max_len)
 
-    model = attach_lora(load_base(for_training=True))
+    model = attach_lora(load_base(for_training=True, gradient_checkpointing=not args.no_grad_ckpt))
 
     # transformers 5 dropped warmup_ratio, so the ratio is applied by hand.
     steps = math.ceil(len(dataset) * args.epochs / (args.batch_size * args.grad_accum))
@@ -125,7 +134,7 @@ def main() -> None:
                 # finishing and not.
                 "optim": "paged_adamw_8bit",
                 "bf16": True,
-                "gradient_checkpointing": True,
+                "gradient_checkpointing": not args.no_grad_ckpt,
                 "gradient_checkpointing_kwargs": {"use_reentrant": False},
                 "logging_steps": 10,
                 # A full run is hours long; checkpoints make an interruption

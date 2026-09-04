@@ -44,6 +44,7 @@ def load_base(
     *,
     quantized: bool = True,
     for_training: bool = False,
+    gradient_checkpointing: bool = True,
 ):
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
@@ -52,7 +53,9 @@ def load_base(
         device_map={"": 0} if torch.cuda.is_available() else "cpu",
     )
     if for_training:
-        model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)
+        model = prepare_model_for_kbit_training(
+            model, use_gradient_checkpointing=gradient_checkpointing
+        )
         model.config.use_cache = False
     return model
 
