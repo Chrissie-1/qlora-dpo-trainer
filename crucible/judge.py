@@ -101,6 +101,10 @@ class JudgeError(RuntimeError):
     pass
 
 
+class QuotaExhausted(JudgeError):
+    """The daily budget is gone. Retrying cannot help until it resets."""
+
+
 def _key(mode: str, model: str, prompt: str, responses: list[str]) -> str:
     blob = json.dumps([mode, model, prompt, responses], ensure_ascii=False)
     return hashlib.sha1(blob.encode("utf-8")).hexdigest()
@@ -181,6 +185,13 @@ class Judge:
                     self._reasoning_effort = None
                     payload.pop("reasoning_effort", None)
                     continue
+                if r.status_code == 429 and (
+                    "per day" in r.text or "TPD" in r.text or "RPD" in r.text
+                ):
+                    raise QuotaExhausted(
+                        f"{self.model} has spent its daily budget: "
+                        + r.text[r.text.find("Limit") : r.text.find("Limit") + 80]
+                    )
                 if r.status_code == 429 or r.status_code >= 500:
                     # Spend the reservation: a refused call still consumed the
                     # budget upstream, and the retry-after header is the truth.
@@ -299,6 +310,14 @@ class Judge:
             for future in tqdm(futures, total=len(items), desc=desc):
                 try:
                     results[futures[future]] = future.result()
+                except QuotaExhausted as exc:
+                    failures += 1
+                    if failures == 1:
+                        print(f"quota wall: {exc}")
+                    for pending in futures:
+                        pending.cancel()
+                    if not tolerate:
+                        raise
                 except JudgeError as exc:
                     failures += 1
                     if failures == 1:
