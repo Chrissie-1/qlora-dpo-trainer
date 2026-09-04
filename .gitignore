@@ -21,3 +21,6 @@ __pycache__/
 
 # Run logs
 *.log
+
+# Job logs
+score_wait.log
