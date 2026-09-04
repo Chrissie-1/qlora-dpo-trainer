@@ -32,28 +32,28 @@
     "base": {
       "adapter": "base",
       "quantized": true,
-      "prompts": 10,
+      "prompts": 15,
       "max_new_tokens": 128,
-      "tokens_per_second_mean": 6.66,
-      "tokens_per_second_median": 6.67,
+      "tokens_per_second_mean": 4.34,
+      "tokens_per_second_median": 4.39,
       "peak_gpu_gib": 2.04
     },
     "sft": {
       "adapter": "adapters/sft",
       "quantized": true,
-      "prompts": 10,
+      "prompts": 15,
       "max_new_tokens": 128,
-      "tokens_per_second_mean": 5.1,
-      "tokens_per_second_median": 5.13,
+      "tokens_per_second_mean": 3.04,
+      "tokens_per_second_median": 3.02,
       "peak_gpu_gib": 2.07
     },
     "dpo": {
       "adapter": "adapters/dpo",
       "quantized": true,
-      "prompts": 10,
+      "prompts": 15,
       "max_new_tokens": 128,
-      "tokens_per_second_mean": 2.6,
-      "tokens_per_second_median": 2.62,
+      "tokens_per_second_mean": 5.05,
+      "tokens_per_second_median": 4.97,
       "peak_gpu_gib": 2.07
     }
   }
