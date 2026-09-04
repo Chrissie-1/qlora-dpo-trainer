@@ -54,6 +54,8 @@ def main() -> None:
             desc=f"judging {tag}",
         )
         for gen, score in zip(generations, scores, strict=True):
+            if score is None:
+                continue
             rows.append(
                 {
                     "prompt_id": gen["prompt_id"],
@@ -62,6 +64,9 @@ def main() -> None:
                     "reason": score["reason"],
                 }
             )
+
+    if not rows:
+        raise SystemExit("no responses were scored -- the judge quota is spent")
 
     with open(args.out, "w", encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=["prompt_id", "source", *AXES, "reason"])
@@ -74,6 +79,8 @@ def main() -> None:
     by_source = {}
     for tag in args.gen:
         subset = [r for r in rows if r["source"] == tag]
+        if not subset:
+            continue
         by_source[tag] = {r["prompt_id"]: r for r in subset}
         means = {axis: statistics.fmean([r[axis] for r in subset]) for axis in AXES}
         print(f"{tag:<12}" + "".join(f"{means[axis]:>14.2f}" for axis in AXES))
@@ -81,6 +88,10 @@ def main() -> None:
     # Paired deltas against the first tag, which is the baseline by convention.
     baseline, *others = args.gen
     for tag in others:
+        # A stage the quota cut short has no rows at all; skip rather than fail.
+        if baseline not in by_source or tag not in by_source:
+            print(f"\nno paired comparison for {tag}: one of the two stages went unscored")
+            continue
         shared = set(by_source[baseline]) & set(by_source[tag])
         if not shared:
             continue

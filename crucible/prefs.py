@@ -52,7 +52,11 @@ def main() -> None:
     )
 
     kept, ties, empties = [], 0, 0
+    unjudged = 0
     for (a, b), verdict in zip(pairs, verdicts, strict=True):
+        if verdict is None:
+            unjudged += 1
+            continue
         if verdict["winner"] == "tie":
             ties += 1
             continue
@@ -77,8 +81,10 @@ def main() -> None:
 
     chose_b = sum(1 for r in kept if r["chosen_source"] == args.b)
     print(f"wrote {args.out}")
-    print(f"  {len(pairs)} pairs judged")
-    print(f"  {len(kept)} kept ({len(kept) / len(pairs):.0%})")
+    print(f"  {len(pairs) - unjudged} of {len(pairs)} pairs judged"
+          + (f" ({unjudged} unjudged: quota)" if unjudged else ""))
+    judged = len(pairs) - unjudged
+    print(f"  {len(kept)} kept ({len(kept) / judged:.0%} of judged)" if judged else "  none judged")
     print(f"  {ties} dropped as ties or order-inconsistent, {empties} dropped as empty")
     if kept:
         print(f"  judge preferred {args.b} in {chose_b}/{len(kept)} decided pairs "

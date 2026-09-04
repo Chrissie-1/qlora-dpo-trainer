@@ -283,11 +283,28 @@ class Judge:
         self._remember(key, value)
         return value
 
-    def map(self, fn, items: list, desc: str = "judging") -> list:
-        """Run `fn` over `items` on the thread pool, preserving input order."""
+    def map(self, fn, items: list, desc: str = "judging", *, tolerate: bool = True) -> list:
+        """Run `fn` over `items` on the thread pool, preserving input order.
+
+        With `tolerate`, a failed call becomes None instead of killing the run.
+        The daily token quota is the expected failure here, and it arrives
+        partway through: discarding the hundreds of results that did land --
+        and the API budget they cost -- to re-raise one exception would be the
+        expensive way to handle it. Callers report the gap.
+        """
         results: list = [None] * len(items)
+        failures = 0
         with ThreadPoolExecutor(max_workers=self.workers) as pool:
             futures = {pool.submit(fn, item): i for i, item in enumerate(items)}
             for future in tqdm(futures, total=len(items), desc=desc):
-                results[futures[future]] = future.result()
+                try:
+                    results[futures[future]] = future.result()
+                except JudgeError as exc:
+                    failures += 1
+                    if failures == 1:
+                        print(f"judge stopped answering: {exc}")
+                    if not tolerate:
+                        raise
+        if failures:
+            print(f"{failures}/{len(items)} judge calls did not complete")
         return results
