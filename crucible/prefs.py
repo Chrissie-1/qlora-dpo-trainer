@@ -19,7 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from crucible.config import DATA
+from crucible.config import DATA, PREF_MODEL
 from crucible.judge import Judge
 from crucible.score import load_generations
 
@@ -29,7 +29,8 @@ def main() -> None:
     ap.add_argument("--a", default="base", help="generation tag for candidate A")
     ap.add_argument("--b", default="sft", help="generation tag for candidate B")
     ap.add_argument("--out", default=str(DATA / "prefs.jsonl"))
-    ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--workers", type=int, default=2)
+    ap.add_argument("--model", default=PREF_MODEL, help="judge used for the preferences")
     ap.add_argument("--limit", type=int, default=None)
     args = ap.parse_args()
 
@@ -41,7 +42,8 @@ def main() -> None:
     if not shared:
         raise SystemExit(f"no prompt overlap between gen_{args.a} and gen_{args.b}")
 
-    judge = Judge(workers=args.workers)
+    judge = Judge(model=args.model, workers=args.workers)
+    print(f"preference judge: {judge.model}")
     pairs = [(a_rows[p], b_rows[p]) for p in shared]
     verdicts = judge.map(
         lambda pair: judge.compare(pair[0]["prompt"], pair[0]["response"], pair[1]["response"]),

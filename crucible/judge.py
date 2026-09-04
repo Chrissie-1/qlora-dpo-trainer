@@ -24,6 +24,7 @@ import random
 import re
 import threading
 import time
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -33,6 +34,47 @@ from tqdm import tqdm
 from crucible.config import GROQ_BASE_URL, JUDGE_MODEL, RESULTS
 
 CACHE_PATH = RESULTS / "judge_cache.jsonl"
+
+# Groq's free tier meters tokens per minute, not requests, and gpt-oss is a
+# reasoning model whose hidden reasoning tokens are billed to that budget too.
+# Retrying a 429 does not help when the limit is a rate: the fix is to pace the
+# calls under it. 7000 leaves headroom under the 8000 TPM ceiling for the
+# accounting drift between our estimate and Groq's.
+TOKENS_PER_MINUTE = int(os.environ.get("CRUCIBLE_JUDGE_TPM", "7000"))
+
+
+class TokenBudget:
+    """A rolling one-minute token budget shared by every judge thread.
+
+    Callers reserve an estimate before the request and settle the difference
+    afterwards from the API's own usage figure, so a model that reasons more
+    than expected slows the next call down instead of triggering a 429.
+    """
+
+    def __init__(self, tokens_per_minute: int = TOKENS_PER_MINUTE):
+        self.limit = tokens_per_minute
+        self._events: deque[list[float]] = deque()
+        self._lock = threading.Lock()
+
+    def _trim(self, now: float) -> None:
+        while self._events and now - self._events[0][0] > 60:
+            self._events.popleft()
+
+    def reserve(self, estimate: int) -> list[float]:
+        while True:
+            with self._lock:
+                now = time.monotonic()
+                self._trim(now)
+                if sum(e[1] for e in self._events) + estimate <= self.limit or not self._events:
+                    entry = [now, float(estimate)]
+                    self._events.append(entry)
+                    return entry
+                wait = 60 - (now - self._events[0][0])
+            time.sleep(min(max(wait, 0.5), 10) + random.random())
+
+    def settle(self, entry: list[float], actual: int) -> None:
+        with self._lock:
+            entry[1] = float(actual)
 
 SCORE_SYSTEM = """You are a strict evaluator of AI assistant responses.
 Score the response on three axes, each an integer from 0 to 10:
@@ -70,12 +112,16 @@ class Judge:
         model: str = JUDGE_MODEL,
         *,
         cache_path: Path = CACHE_PATH,
-        workers: int = 4,
+        workers: int = 2,
         timeout: float = 120.0,
     ):
         self.model = model
         self.workers = workers
         self.cache_path = cache_path
+        self.budget = TokenBudget()
+        # gpt-oss accepts a reasoning_effort hint; other models 400 on it, so it
+        # is dropped permanently the first time the API rejects it.
+        self._reasoning_effort: str | None = "low"
         self._lock = threading.Lock()
         self._cache = self._load_cache()
         api_key = os.environ.get("GROQ_API_KEY")
@@ -109,7 +155,7 @@ class Judge:
             with self.cache_path.open("a", encoding="utf-8") as fh:
                 fh.write(json.dumps({"key": key, "value": value}, ensure_ascii=False) + "\n")
 
-    def _chat(self, system: str, user: str, *, attempts: int = 5) -> str:
+    def _chat(self, system: str, user: str, *, attempts: int = 6) -> str:
         payload = {
             "model": self.model,
             "messages": [
@@ -120,11 +166,24 @@ class Judge:
             "max_tokens": 512,
             "response_format": {"type": "json_object"},
         }
+        if self._reasoning_effort:
+            payload["reasoning_effort"] = self._reasoning_effort
+
+        # Roughly four characters per token, plus the reply we are asking for.
+        estimate = (len(system) + len(user)) // 4 + 200
+
         last = None
         for attempt in range(attempts):
+            entry = self.budget.reserve(estimate)
             try:
                 r = self._client.post("/chat/completions", json=payload)
+                if r.status_code == 400 and "reasoning_effort" in r.text:
+                    self._reasoning_effort = None
+                    payload.pop("reasoning_effort", None)
+                    continue
                 if r.status_code == 429 or r.status_code >= 500:
+                    # Spend the reservation: a refused call still consumed the
+                    # budget upstream, and the retry-after header is the truth.
                     wait = float(r.headers.get("retry-after", 0) or 0) or min(
                         2**attempt + random.random(), 30
                     )
@@ -132,7 +191,16 @@ class Judge:
                     last = str(r.status_code) + ": " + r.text[:200]
                     continue
                 r.raise_for_status()
-                return r.json()["choices"][0]["message"]["content"]
+                remaining = r.headers.get("x-ratelimit-remaining-requests")
+                if remaining is not None and int(remaining) < 3:
+                    raise JudgeError(
+                        f"{self.model} has {remaining} requests left in its daily quota "
+                        f"(resets in {r.headers.get('x-ratelimit-reset-requests', '?')}). "
+                        "Cached results are kept; re-run when the quota resets."
+                    )
+                body = r.json()
+                self.budget.settle(entry, body.get("usage", {}).get("total_tokens", estimate))
+                return body["choices"][0]["message"]["content"]
             except (httpx.HTTPError, KeyError) as exc:
                 last = str(exc)
                 time.sleep(min(2**attempt + random.random(), 30))

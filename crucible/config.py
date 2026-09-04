@@ -44,6 +44,14 @@ BASE_MODEL = os.environ.get("CRUCIBLE_BASE_MODEL", "Qwen/Qwen2.5-3B-Instruct")
 # Judge. GPT-OSS 120B on Groq: large enough that its ranking is not just the
 # 3B model grading its own homework.
 JUDGE_MODEL = os.environ.get("CRUCIBLE_JUDGE_MODEL", "openai/gpt-oss-120b")
+
+# The preference signal for DPO comes from a *different* judge than the one that
+# scores the results. Partly necessity -- Groq meters 1000 requests per model
+# per day, and the 1950 calls this pipeline wants do not fit in one model's
+# quota -- and partly a better experiment: if the evaluator also produced the
+# training signal, any DPO gain could be the policy learning that evaluator's
+# quirks rather than getting better.
+PREF_MODEL = os.environ.get("CRUCIBLE_PREF_MODEL", "openai/gpt-oss-20b")
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
 # 1024 covers the great majority of single-turn UltraChat exchanges and is what

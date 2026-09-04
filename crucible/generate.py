@@ -32,7 +32,7 @@ def generate_responses(
     prompts: list[str],
     *,
     adapter: str | None,
-    batch_size: int = 4,
+    batch_size: int = 16,
     temperature: float = 0.7,
     top_p: float = 0.9,
     max_new_tokens: int = MAX_NEW_TOKENS,
@@ -105,7 +105,7 @@ def main() -> None:
     ap.add_argument("--adapter", default=None, help="path to a PEFT adapter; omit for the base")
     ap.add_argument("--tag", required=True, help="names the output file: data/gen_TAG.jsonl")
     ap.add_argument("--limit", type=int, default=None)
-    ap.add_argument("--batch-size", type=int, default=4)
+    ap.add_argument("--batch-size", type=int, default=16)
     ap.add_argument("--temperature", type=float, default=0.7)
     ap.add_argument("--max-new-tokens", type=int, default=MAX_NEW_TOKENS)
     ap.add_argument("--seed", type=int, default=SEED)

@@ -24,8 +24,8 @@ judge:
 
 # Phase 3
 prefs:
-	$(PY) -m crucible.generate --split dpo --tag dpo_base --limit 600
-	$(PY) -m crucible.generate --split dpo --tag dpo_sft --limit 600 --adapter adapters/sft
+	$(PY) -m crucible.generate --split dpo --tag dpo_base --limit 450
+	$(PY) -m crucible.generate --split dpo --tag dpo_sft --limit 450 --adapter adapters/sft
 	$(PY) -m crucible.prefs --a dpo_base --b dpo_sft
 dpo:
 	$(PY) -m crucible.dpo
