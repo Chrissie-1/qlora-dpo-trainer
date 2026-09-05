@@ -5,7 +5,8 @@ score and rank the results, then train DPO on those preferences — and report
 what actually happened.
 
 What actually happened is that **supervised fine-tuning lowered perplexity by
-12.3% and made the model worse.** The pipeline is built to catch exactly that.
+12.3% and produced no measurable quality gain.** The pipeline is built to catch
+exactly that.
 
 ```
 UltraChat 10k
@@ -26,11 +27,24 @@ DPO from the SFT adapter ──▶ adapters/dpo
 
 ## Results
 
-| Stage | Perplexity (held-out) | Pairwise vs base | Judge score, paired Δ |
-|---|---|---|---|
-| base | 3.609 | — | — |
-| SFT | **3.165** (−12.3%) | **loses 70 of 78** (10% win rate) | −0.21 (95% CI −0.75 to +0.32) |
-| DPO | 3.169 | *scoring pending* | *scoring pending* |
+| Stage | Perplexity (held-out) | Judge score (0-10) | Paired Δ vs base | Win/loss/tie |
+|---|---|---|---|---|
+| base | 3.609 | 6.26 | — | — |
+| SFT | **3.165** (−12.3%) | 6.37 | +0.113 (95% CI −0.233 to +0.460) | 49 / 37 / 14 |
+| DPO | 3.169 | 6.26 | +0.003 (95% CI −0.329 to +0.336) | 45 / 39 / 13 |
+
+100 prompts per stage, scored by gpt-oss-120b. **Both confidence intervals
+contain zero**: neither SFT nor DPO produced a quality change this evaluation
+can detect, while SFT moved perplexity 12.3%.
+
+A separate pairwise comparison — gpt-oss-20b, on the *different* `dpo` split —
+preferred base responses in 70 of 78 decided pairs. That disagrees sharply with
+the table above, and the honest reading is that it is **confounded**: it changed
+the judge model *and* the prompt set at the same time, so the disagreement
+cannot be attributed to the pairwise protocol alone. Resolving it needs the same
+judge running both protocols over the same prompts, which the daily token budget
+did not allow. It is reported because it is what the preference data actually
+said, not because it is conclusive.
 
 DPO training: loss **0.693 → 0.476**, reward margin **1.33**, reward accuracy
 **87.5%** on 78 preference pairs.
@@ -56,33 +70,42 @@ perplexity would describe a model this pipeline never produces.
 
 ## Findings
 
-### 1. SFT lowered perplexity and made the model worse
+### 1. A 12.3% perplexity gain bought no measurable quality
 
-Perplexity fell 12.3% while the judge preferred the *base* model in 70 of 78
-pairwise comparisons. Both are true, and they are not in conflict.
+Perplexity fell 12.3%. The judge's paired delta was +0.11 with a confidence
+interval spanning −0.23 to +0.46 — indistinguishable from zero.
 
-Qwen2.5-3B-**Instruct** is already instruction-tuned. UltraChat's responses come
-from a weaker teacher. Training on them moved the model closer to UltraChat's
-distribution — which is what perplexity measures — and further from where it
-started, which is what quality measures. Fine-tuning an already-aligned model on
-mid-quality data is regression toward the corpus, not learning.
+Qwen2.5-3B-**Instruct** is already instruction-tuned, and UltraChat's responses
+come from a weaker teacher. Training on them moved the model closer to
+UltraChat's distribution — which is exactly what perplexity measures — without
+moving quality anywhere the judge could see.
 
 **Reported alone, the perplexity number would have called this run a success.**
+That is the point of the judge: it is the instrument that says "no it wasn't".
 
-### 2. Pairwise judging separates models that absolute scoring cannot
+An earlier version of this README claimed SFT made the model *worse*, from a
+paired delta of −0.21 measured on 25 prompts before the judge's daily budget cut
+scoring short. At 100 prompts the sign flips to +0.11 and stays inside the
+noise. Twenty-five paired samples were not enough to carry that claim, and the
+first number is left here rather than quietly deleted.
 
-The same judge, on the same responses, gave two different answers:
+### 2. Absolute scoring compresses; pairwise does not — but this run cannot prove it
 
-| Method | Verdict |
-|---|---|
-| Pairwise A/B | base preferred in 70 of 78 (90%) |
-| Absolute 0-10 | paired Δ −0.21, CI −0.75 to +0.32 — indistinguishable from zero |
+Absolute scoring is blunt here. Every stage lands between 6.26 and 6.37 on a
+0-10 scale, and a competent two-sentence answer scored 9.3/10 despite a rubric
+stating that competent-but-unremarkable is a 6. Differences compress into a
+narrow band near the top.
 
-Absolute scoring is blunt because the judge rates almost everything near the
-top: a competent two-sentence answer scored 9.3/10 despite a rubric stating
-that competent-but-unremarkable is a 6. Real differences compress into that
-narrow band. Asked *which of these two is better*, the same judge separates
-them cleanly.
+The pairwise protocol on the same models was far more decisive (70 of 78). The
+tempting conclusion — pairwise separates what absolute scoring cannot — is
+**not supported by this experiment**, because the pairwise run also used a
+different judge model and a different prompt split. Two variables moved, so the
+effect cannot be assigned to one.
+
+What this run does establish: the absolute scores are compressed, and a design
+that changes judge and dataset together cannot answer a question about
+protocols. The next iteration runs both protocols with one judge over one
+prompt set.
 
 ### 3. QLoRA on 8 GB is memory-bound, and both obvious speedups backfire
 
@@ -211,9 +234,11 @@ So the judge:
 
 * **DPO is small.** 78 preference pairs, bounded by the daily judge budget.
   Conclusions from 78 pairs are weak, and labelled as such.
-* **Scoring is partial.** base 100 prompts, SFT 25, DPO pending the next quota
-  reset; the paired delta rests on the 25 prompts both stages share, which is why
-  its confidence interval is wide enough to contain zero.
+* **Neither result is significant.** Both paired deltas straddle zero. This
+  evaluation can rule out large effects, not small ones; 100 prompts and one
+  seed give it no power to resolve a few tenths of a point.
+* **The pairwise and absolute results disagree and the design cannot say why** —
+  different judge, different split. See Findings 1 and 2.
 * **One seed per configuration.** Differences of a few tenths of a judge point
   are not separable from run-to-run variance.
 * **Latency ranges are wide** (base spans 7.36-12.36 tok/s across three rounds).
