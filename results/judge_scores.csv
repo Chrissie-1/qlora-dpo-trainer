@@ -150,4 +150,55 @@ f10b352e528fa309d360f0d9a479c4dd34521f74aaf0a9b509b01d8c447b3a8e,sft,6.0,8.0,7.0
 5de80eee1c78ac30688d81dbfdd7518c9ca7eff897f28b46468ad31b17d1bab4,sft,5.0,7.0,8.0,6.667,Provides a high-level feature list but lacks concrete design or implementation details requested.
 42a80642400729dfcbd26faab2cc9d3cc96302d2b90e473f67d7e393a82a0d72,sft,8.0,9.0,9.0,8.667,"Provides a suitable, clear dialogue that meets the prompt, though it could be more varied or detailed"
 d37d1aa1ec63d0903173f3e5fd6078a1796d1cf8d4f9063b3d1c0e1033a1fd6e,sft,6.0,5.0,7.0,6.0,Provides some useful tips but includes inaccurate advice and lacks depth.
+b51a3181b52d41726cd6d3a01520df8e86a67c3bc08870393741e4a6bae71465,sft,5.0,6.0,6.0,5.667,"The essay is incomplete and only partially addresses the prompt, limiting its usefulness despite being generally accurate and readable."
+a59556ee84809859114cb97a7aeb272f1471d2607464f117e070d7933a0b3b58,sft,3.0,7.0,5.0,5.0,"The story is incomplete, lacks depth, background, and a satisfying conclusion, though it is mostly coherent."
 4e4bb9f0c55b6af58fa5f0fdd7ddf5b94d817d12bb9a25cfff0bfe80242f9478,sft,5.0,4.0,6.0,5.0,Provides a basic comparison and examples but includes inaccurate or vague campaign details and lacks depth.
+20552617cb7d7239ffa52d4f3951bd64982bd0f28bb17513812a225c09044484,sft,6.0,7.0,8.0,7.0,Provides a generic summary but lacks specific reference to the poem’s imagery and nuance.
+350e5980c91447aeb30a0ffdd818aff290f9f64cc2921210967a85b908fdb6a8,sft,7.0,9.0,9.0,8.333,"Good summary and clear, but omits some details like varnish, signature, and mandala context, limiting completeness"
+27e3816f78ed59a50ee343d6c7a751e2404e233e7bd7a7f327751f1556de0eee,sft,6.0,7.0,7.0,6.667,"Provides a basic recipe but is incomplete, cuts off early, and lacks some detail and precision."
+65a978a58088e0aa03d392da9536ee1cc5a4c6d418896942501a0026938f5f53,sft,3.0,8.0,6.0,5.667,"The lyrics are generic, lack vivid imagery and emotional depth requested, though they are structurally clear and factually fine."
+2f4ec066a17cae0a07b908eb451e3f70ca569a5dd77da271861643581f91dcdf,sft,7.0,8.0,8.0,7.667,Provides a useful but basic usage suggestion; accurate and clear but not especially detailed or innovative.
+69706549bd0566ce93d482016449b3f46fedf9a4a334dbc7c0b73fe92d574d78,sft,8.0,9.0,9.0,8.667,"Provides relevant solutions with explanations, generally accurate and clearly organized, though somewhat generic."
+c7a8ae753773498dd78064756e300ac623e21ce5db20e1e4746c50aa3bb582c8,sft,7.0,8.0,7.0,7.333,"Provides a solid, engaging post with features, benefits, promo and hashtags, but lacks photo cues and could be more polished"
+3087b530ae6fc98c664b93c19c9781cb4cfff8579f78ba948924a0d30b091512,sft,6.0,6.0,7.0,6.333,"Provides a reasonable answer but relies on generic examples not directly cited, limiting depth and accuracy."
+dc8e74a280e75266560df70f4a6e95909e5997dbaf4341f7fc376a10ca8c6f74,sft,5.0,7.0,6.0,6.0,"Provides relevant points but is incomplete and lacks depth, limiting its usefulness"
+b4eb413353ec32d622e12e9b4e099735f0d004dd0c6e6dd99e2d7d9327d7b6af,sft,7.0,9.0,8.0,8.0,"Provides relevant styling ideas for both settings, factually sound, but could be more detailed and better organized."
+0fc18ca5660892dccdfa256cdc95ffacd65d1d92ba763c3833b6f121a8e6da39,sft,7.0,9.0,8.0,8.0,"Provides a solid, organized overview of impacts but lacks depth and specific examples to be outstanding"
+fe9394c312c3ca05110c06ccb8784d75c83faad64612fe9efa5b56247128a460,sft,6.0,6.0,7.0,6.333,Provides useful tips and stats but lacks infographic detail and some figures are questionable.
+3d2967b2e419e1ebd9a023c39371c0bf16aea5af4ed4bbac065ecc89fe55860a,sft,4.0,5.0,6.0,5.0,Provides generic advice but contains inaccuracies and lacks depth for APA 6th thesis citations
+72c8394718026c95f42e9a554bf0711324954df515b2ce59cb5ba8c7777bbbe9,sft,8.0,9.0,9.0,8.667,"Provides a clear, accurate list of pros and cons for both settings, though could include more nuance or data for higher distinction."
+6fdbfccad5891aa69cd6c514fbf5e3630a9fbc3b375926112e1a3dd344b46ca1,sft,3.0,2.0,4.0,3.0,"Provides inaccurate protein amount and vague diet advice, missing key details from the source material"
+c23efb7f14006cbacb0504b40b1c108ca2f5e794794be1e5f6ccbdc95896ffc3,sft,5.0,6.0,6.0,5.667,"Provides a partial, incomplete example and lacks full implementation details"
+4e0187457684be88bb9ac584e40cb3ada5aefc2f974397bda593c74e261b2ac9,sft,5.0,7.0,6.0,6.0,"Provides basic advice but lacks detail, specificity, and is incomplete, limiting its usefulness"
+57c4af910955e615fc32fdc9cf0923ede56b79e698db2a80fe2595d4abc59fbe,sft,4.0,3.0,6.0,4.333,"The answer lists attractions but contains several factual errors and omissions, reducing its usefulness despite being clearly written."
+427a0ac2a4b6b4222ea69dafb177fb5169767d468ae9077f78568bdddd8e9dd0,sft,4.0,5.0,6.0,5.0,"The tutorial is superficial, contains inaccuracies about Snapchat features, and lacks the detailed, visual guidance requested."
+7e463af17ac15728681dd921133bac907145df599966cb4d1787ccff475c2334,sft,9.0,8.0,9.0,8.667,"Provides a complete, clear recipe with instructions and nutrition, though nutritional estimates could be more precise"
+92e39542cae21d9e36033383416d036f17ea9fe36cb29de182d0d70ddc9f5ce7,sft,4.0,6.0,7.0,5.667,"Provides a basic outline but misses many required details like specific dates, formats, channels, audience segmentation, keywords, and scheduling reminders."
+e96172eb3132cdacf6941fc1fd4b4f13ce6a76f5f5e84bddb89e4c6a8840e69d,sft,5.0,6.0,7.0,6.0,"The reply is generic and repeats the prompt without providing concrete insights or detailed analysis, limiting its usefulness."
+dd9429b959e20922a6ac1b0093d1279a77ec9db58120a772d8164a916f1e0d0f,sft,9.0,9.0,9.0,9.0,Provides the exact requested figures accurately and concisely.
+84ce4bee02b6058b47f4b4679330da9f6b968174d0ee17583470da2af435a241,sft,7.0,9.0,9.0,8.333,"Provides the correct 45% figure and a clear, though brief, explanation of its impact"
+fbc21922edf0ec81f212a145212b8681057af61ed6f6e9c38a11efd64dde123f,sft,5.0,4.0,6.0,5.0,"The response is incomplete, offers limited evidence and vague citations, reducing its usefulness and accuracy despite decent organization."
+26c060c8ec7f8d1b20f11bbf35ccd0acb18fa3ba11324094517e8b4928701079,sft,8.0,9.0,9.0,8.667,"The letter fulfills the request well, is accurate and clearly written, though not exceptionally original."
+25ef3383c07dc31074e7a1dcb633a7268b80f006e2039a2893fa3dcd7cec3993,sft,8.0,7.0,8.0,7.667,Provides a functional script but counts all entries not just files and could be more robust.
+346a1a6a7fdcafdc9a25cab44a26f0b392eda0b8cb01fac9595ae4c2436070f0,sft,5.0,7.0,7.0,6.333,"The reply is vague and lacks detail about the video’s specific steps, though it is generally correct and clear."
+4703c130253eec6e77ce4f730e7f0a701e42918033a58dfd7f90863828424944,sft,9.0,9.0,9.0,9.0,"Provides correct, efficient code with clear comments and meets the prompt requirements"
+c27cd05d040cedf9feee13ae4561d47caf7ed8cfd7514a46ff60d576150ed929,sft,6.0,7.0,7.0,6.667,"The guide covers most requested points but is incomplete, lacks illustrations, and stops abruptly, limiting its usefulness."
+3c012991435ead508b264be6ea6668dfdfc073c11e9ffd26aaa671df7f02989e,sft,7.0,9.0,8.0,8.0,"Provides a broad checklist with stretch and hydrate points but adds extraneous items, reducing focus on the specific request."
+c30b6fb1f7330e1c01301f057d41634062ee2597cda4f9c5db191d62ed7ef409,sft,4.0,6.0,7.0,5.667,Provides generic advice but lacks specific info about where to find the animated strip or detailed support options
+7307b9adc3eff64e5c28a83c68e94a5d1a61bdbadf7e88771ba4a13382d8e210,sft,0.0,0.0,0.0,0.0,"The response fails to answer the question, provides an incorrect and nonsensical answer, and is not clear."
+8113f1e24ecc04e3be0dd5a46b351b27f52f03e3020219805551ec941f90b613,sft,7.0,8.0,7.0,7.333,Provides relevant advice but lacks depth and specific actionable details
+a7a0024b15b18c683802986fb07899353d38f57008bd63fb0969a0068e2d292f,sft,6.0,5.0,7.0,6.0,Provides a basic overview of Tetris mechanics but includes inaccuracies and lacks depth.
+6e0c5c03a4d693ef0a1d0c7b47594da8dc224f7550c20b4368fd5aaa39756cfe,sft,4.0,6.0,5.0,5.0,"The story is generic, incomplete, and lacks vivid, symbolic detail, though it is mostly clear and factually fine."
+0266c8cea981f8702d5375b0cae45435accab39bd1479ac7889b3089c7f0dcf9,sft,8.0,9.0,9.0,8.667,Accurately summarizes the comparison points but could include more nuance
+69f8b9f48a2c23b80bdfca6dc0d98e01a118e116e3138793c7de22559048ad20,sft,1.0,1.0,5.0,2.333,"The response fails to paraphrase the requested first sentence and misrepresents the text, offering irrelevant content."
+f8e9393675264dc6ba7194ece319646d2623d506fcb514d4d07d33367cb94d80,sft,3.0,6.0,5.0,4.667,"The answer is incomplete, missing most of the required structure and details, though the portion provided is reasonably clear."
+03f436b106a4bb2c95f77c2f5d2a1d71a42ace352401e74252c3c1ae3cc7dbbf,sft,7.0,6.0,8.0,7.0,Provides a clear paraphrase but may not accurately reflect the article's actual argument.
+a0d8c8693a68190304bca1599c2d2d38b943ee6a17b063a02addccaf502697d2,sft,2.0,7.0,6.0,5.0,"The reply fails to answer the question and merely asks for more info, offering little utility."
+064fa9fa9d7831b705c58f4373041dff5d0f75fcf35fba7a3ccd76afc9548b32,dpo,5.0,5.0,7.0,5.667,"The answer gives a vague interpretation without engaging the specific lines, so it’s only moderately clear but not very helpful or accurate."
+30e3f0d52606b067a300dfcedd03e50bb13fe251199ef8ef9f9909b4be166eb2,dpo,4.0,6.0,5.0,5.0,"The response is incomplete and lacks detailed, actionable content, reducing its usefulness despite being generally accurate and organized."
+d0b8875d1bc67b48c0d03a5677421e1b8b35d11221764e783cecd49a0f6e8f02,dpo,6.0,5.0,8.0,6.333,Provides a clear list but contains some factual errors and limited depth.
+3c7b53492f50079af3487bb3b25babc0c56ce8ecf93129ace5044a024ff2b13b,dpo,3.0,4.0,5.0,4.0,"The response provides an unrelated ingredient list and steps, deviating from the given recipe and contains inaccuracies."
+38f3eb988eab340fe744d9cd48447e86376df011ce192073626eb8f4c98e94be,dpo,5.0,6.0,7.0,6.0,Provides generic steps but misses key details like URL replacement and specific scrolling speed instructions
+7726a05ffd25a922137b07a7ccd9e78587e217df901669e10532dc12e8db8e62,dpo,6.0,5.0,7.0,6.0,Provides a basic list and benefits but lacks reliable data and depth.
+45a804f94f83af5948685fb03f1d3662b1d54aca2ee081f7ed84115669ae18b9,dpo,4.0,6.0,6.0,5.333,It gives a generic overview but fails to explain specific uses for each listed profession.
+1ff7ca762eb8ff8d461a1403457b5f71bfb4bc24542072219692a71d3a66a5a8,dpo,2.0,3.0,5.0,3.333,It fails to provide a simpler paraphrase of the requested description and misinterprets the task.

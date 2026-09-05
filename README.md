@@ -154,7 +154,7 @@ TESSERA_MODEL=$PWD/exports/dpo-merged TESSERA_BACKEND=batched
 
 `export merge` folds the LoRA weights into the base weights and writes a plain
 Transformers checkpoint, which
-[tessera](https://github.com/Chrissie-1/tessera-llm-inference-paged-kv-cache-speculative-decoding)
+[tessera](https://github.com/Chrissie-1/llm-inference-server)
 serves directly — paged KV cache, continuous batching, speculative decoding.
 
 The merge runs on CPU in fp16 deliberately: merging into 4-bit weights means
